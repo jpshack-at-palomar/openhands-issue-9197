@@ -49,6 +49,17 @@ In OpenHands Cloud with this repository:
 
 This repository contains a comprehensive `.openhands/setup.sh` script that:
 
+### 4.0. Setup Requirements
+
+**Note:** This script uses a GitHub secret (`NPMRC`) to configure npm
+authentication for private packages. The secret contains the necessary .npmrc
+configuration for accessing `@llmzy` packages. This secret can be provided on
+request for reproduction purposes.
+
+To eliminate this dependency for testing, we plan to simulate the npm
+configuration step with a `sleep` command that mimics the time delay without
+requiring actual authentication.
+
 ### 4.1. Environment Setup
 
 - Validates Node.js 20.x installation
@@ -94,9 +105,36 @@ processes:
   tasks
 - Background processes from dependency installations may not terminate properly
 
-## 6. Workarounds
+## 6. Successful Workaround (Control)
 
-### 6.1. Rename Setup Script and Manual Execution
+This repository includes a `workaround` branch that demonstrates the setup
+script working properly when not run automatically during agent initialization.
+
+### 6.1. Workaround Branch Implementation
+
+The workaround branch:
+
+- Renames `setup.sh` to `setup-environment.sh` to prevent automatic execution
+- Allows the agent to start up without hanging processes
+- Enables manual execution of the setup script when instructed
+
+[View Screenshot: Successful Workaround](media/workaround.png)
+
+When the agent is instructed to run `.openhands/setup-environment.sh`, the
+script executes successfully with full visibility into:
+
+- All setup steps and their output
+- Successful dependency installation
+- Proper npm configuration and package installation
+- Clean completion without hanging processes
+
+This demonstrates that the setup script itself is functional - the issue
+specifically occurs when it runs automatically during agent initialization in
+OpenHands Cloud.
+
+## 7. Failed Workarounds
+
+### 7.1. Rename Setup Script and Manual Execution
 
 Renamed `setup.sh` to `setup_environment.sh` and instructed the agent to run it
 manually before performing other tasks:
@@ -107,7 +145,7 @@ manually before performing other tasks:
 - The agent did not reliably follow manual setup instructions when started from
   GitHub integration
 
-### 6.2. Instruction-Only Setup Script
+### 7.2. Instruction-Only Setup Script
 
 Attempted to create a minimal `setup.sh` that would echo instructions to the
 agent to run the renamed `setup_environment.sh` script:
@@ -115,12 +153,12 @@ agent to run the renamed `setup_environment.sh` script:
 - This approach also failed to work reliably
 - The agent did not consistently follow the echoed instructions
 
-### 6.3. Local Development
+### 7.3. Local Development
 
 Run OpenHands locally where hanging processes from setup scripts don't prevent
 terminal command execution and process output is visible for debugging.
 
-## 7. Related Issues
+## 8. Related Issues
 
 - [GitHub Issue #9197](https://github.com/All-Hands-AI/OpenHands/issues/9197):
   Complex setup.sh scripts cause hanging processes that prevent terminal command
